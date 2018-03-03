@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Morty</string>
+    <string name="tab_text_1">Settings</string>
+    <string name="tab_text_2">Chat</string>
+    <string name="tab_text_3">Favorites</string>
+    <string name="action_settings">Settings</string>
+    <string name="localhost_ip">http://192.168.15.211:5000/</string>
+    <string name="morty_name">Morty the AI</string>
+    <string name="rick_name">Rickle</string>
+    <string name="hint_enter_a_message">Type here...</string>
+
+    <string name="username">f6946a7a-6215-43b2-a1c6-c6d6fa151027</string>
+    <string name="password"> Cj5rBYYVUgld</string>
+    <string name="workspace_id">1f5a3c51-d7af-47ed-841a-ef9dbf749f02</string>
+    <string name="negative_reponse">I didn\'t understand. You can try rephrasing.</string>
+</resources>
