@@ -71,4 +71,9 @@ public class Message implements IMessage, Serializable {
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s.%s: %s", id, user, text);
+    }
 }

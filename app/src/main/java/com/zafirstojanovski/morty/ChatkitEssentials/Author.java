@@ -53,4 +53,9 @@ public class Author implements IUser, Serializable{
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s", name);
+    }
 }

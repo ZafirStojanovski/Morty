@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.util.Log;
 import com.zafirstojanovski.morty.R;
 
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -27,9 +30,15 @@ public class UserIdIntentService extends IntentService {
     public void onCreate() {
         super.onCreate();
 
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.localhost_ip))
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
                 .build();
 
         service = retrofit.create(UserIdWebService.class);

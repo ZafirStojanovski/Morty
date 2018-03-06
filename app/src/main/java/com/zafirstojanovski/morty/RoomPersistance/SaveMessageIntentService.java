@@ -11,7 +11,7 @@ import static com.zafirstojanovski.morty.Fragments.ChatFragment.SHARED_PREFERENC
 
 public class SaveMessageIntentService extends IntentService {
 
-    public static final int STORED_MESSAGES_LIMIT = 20;
+    public static final int STORED_MESSAGES_LIMIT = 10;
     public static final String STORED_MESSAGES = "com.zafirstojanovski.morty.RoomPersistance.SaveMessageIntentService.STORED_MESSAGES";
 
     SharedPreferences sharedPreferences;

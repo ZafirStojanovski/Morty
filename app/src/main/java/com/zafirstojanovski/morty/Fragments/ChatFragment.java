@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -27,8 +28,11 @@ import com.stfalcon.chatkit.messages.MessagesListAdapter;
 import com.zafirstojanovski.morty.AskMorty.MortyIntentService;
 import com.zafirstojanovski.morty.ChatkitEssentials.Author;
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
+import com.zafirstojanovski.morty.FlaskDatabase.SaveToFlaskIntentService;
+import com.zafirstojanovski.morty.FlaskDatabase.MessageWrapper;
 import com.zafirstojanovski.morty.GetUserId.UserIdIntentService;
-import com.zafirstojanovski.morty.Loaders.MessageLoader;
+import com.zafirstojanovski.morty.Loaders.FlaskMessagesLoader;
+import com.zafirstojanovski.morty.Loaders.LocalMessagesLoader;
 import com.zafirstojanovski.morty.R;
 import com.zafirstojanovski.morty.RoomPersistance.AppDatabase;
 import com.zafirstojanovski.morty.RoomPersistance.SaveMessageIntentService;
@@ -46,20 +50,27 @@ import java.util.List;
  * Created by Zafir Stojanovski on 2/25/2018.
  */
 
-public class ChatFragment extends Fragment implements MessageInput.InputListener,
-        LoaderManager.LoaderCallbacks<List<Message>>{
+public class ChatFragment extends Fragment implements MessageInput.InputListener {
 
     private Activity activity;
     private Context context;
     private com.ibm.watson.developer_cloud.conversation.v1.model.Context chatContext = null;
-    private long userId;
+    private Long userId;
 
     private Long messageId;
+    private String lastMessageId;
     private MessagesList messagesList;
     private MessagesListAdapter<Message> adapter;
     private MessageInput inputView;
     private Author sender;
     private Author receiver;
+
+    private MessagesListAdapter.OnLoadMoreListener loadMoreListener;
+
+    private LoaderManager.LoaderCallbacks<List<Message>> localDataLoaderListener;
+    private LoaderManager.LoaderCallbacks<List<Message>> flaskDataLoaderListener;
+    private static final int LOCAL_DATA_LOADER_ID = 1;
+    private static final int FLASK_DATA_LOADER_ID = 2;
 
     private AppDatabase appDatabase;
     private SharedPreferences sharedPreferences;
@@ -71,8 +82,9 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public static final String MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_ID";
     public static final String USER_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.USER_ID";
     public static final String SHARED_PREFERENCES = "com.zafirstojanovski.morty.Fragments.ChatFragment.SHARED_PREFERENCES";
+    public static final String MESSAGE_WRAPPER = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_WRAPPER";
+    public static final String LAST_MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.LAST_MESSAGE_ID";
     private static final double CONFIDENCE_THRESHOLD = 0.72;
-
 
     private UpdateChatReceiver updateChatReceiver;
     private UpdateUserIdReceiver updateUserIdReceiver;
@@ -98,9 +110,11 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupContext();
-        setupBroadcastReceivers();
-        setupAppDatabase();
         setupChatKit(getView());
+        setupBroadcastReceivers();
+        setupLoaders();
+        setupAppDatabase();
+        setupLoadMoreListener();
     }
 
     @Override
@@ -123,11 +137,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private void setupContext() {
-        this.activity = this.getActivity();
-        this.context = this.activity.getApplicationContext();
+        activity = this.getActivity();
+        context = activity.getApplicationContext();
 
-       sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
-
+        sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         userId = sharedPreferences.getLong(USER_ID, 0L);
 
         // User hasn't been assigned an ID
@@ -150,10 +163,62 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         this.updateUserIdReceiver = new UpdateUserIdReceiver();
     }
 
+
+    private void setupLoaders() {
+        localDataLoaderListener = new LoaderManager.LoaderCallbacks<List<Message>>() {
+            @Override
+            public Loader<List<Message>> onCreateLoader(int id, Bundle args) {
+                return new LocalMessagesLoader(context, appDatabase);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<List<Message>> loader, List<Message> data) {
+                adapter.addToEnd(data, true); // fill data to adapter
+                lastMessageId = data.size() > 0 ? data.get(data.size() - 1).getId() : "0";
+                adapter.setLoadMoreListener(loadMoreListener); // start listening for onLoadMore events now.
+            }
+
+            @Override
+            public void onLoaderReset(Loader<List<Message>> loader) { }
+        };
+
+        flaskDataLoaderListener = new LoaderManager.LoaderCallbacks<List<Message>>() {
+            @Override
+            public Loader<List<Message>> onCreateLoader(int id, Bundle args) {
+                return new FlaskMessagesLoader(context, userId.toString(), lastMessageId);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<List<Message>> loader, List<Message> data) {
+                final List<Message> messages = data;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        lastMessageId = messages.size()>0 ? messages.get(0).getId() : "0";
+                        adapter.addToEnd(messages, true); // fill data to adapter
+                    }
+                }, 1000);
+
+            }
+
+            @Override
+            public void onLoaderReset(Loader<List<Message>> loader) { }
+        };
+    }
+
     private void setupAppDatabase() {
         this.appDatabase = AppDatabase.getAppDatabase(context);
+        loadFromLocalDatabase();
+    }
+
+    private void loadFromLocalDatabase() {
         getLoaderManager()
-                .initLoader(0, null, this)
+                .initLoader(LOCAL_DATA_LOADER_ID, null, localDataLoaderListener);
+    }
+
+    private void loadFromFlaskDatabase() {
+        getLoaderManager()
+                .restartLoader(FLASK_DATA_LOADER_ID, null, flaskDataLoaderListener)
                 .forceLoad();
     }
 
@@ -168,6 +233,17 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         inputView.setInputListener(this);
     }
 
+    private void setupLoadMoreListener() {
+        loadMoreListener = new MessagesListAdapter.OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount) {
+                if (Long.parseLong(lastMessageId) > 1 ) {
+                    loadFromFlaskDatabase();
+                }
+            }
+        };
+    }
+
     private Long getMessageId(){
         return sharedPreferences.getLong(MESSAGE_ID, 0L);
     }
@@ -178,19 +254,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                 .putLong(MESSAGE_ID, messageId)
                 .apply();
     }
-
-    @Override
-    public Loader<List<Message>> onCreateLoader(int id, Bundle args) {
-        return new MessageLoader(context, appDatabase);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<List<Message>> loader, List<Message> data) {
-        adapter.addToEnd(data, true);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<Message>> loader) {}
 
     @Override
     public boolean onSubmit(CharSequence input) {
@@ -291,12 +354,14 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         Message messageFromSender = new Message((++messageId).toString(), statement , sender, new Date());
         adapter.addToStart(messageFromSender, true);
         saveToAppDatabase(messageFromSender);
+        saveToServerDatabase(messageFromSender);
     }
 
     private void writeResponse(final String response){
         Message messageFromReceiver = new Message((++messageId).toString(), response, receiver, new Date());
         adapter.addToStart(messageFromReceiver, true);
         saveToAppDatabase(messageFromReceiver);
+        saveToServerDatabase(messageFromReceiver);
     }
 
     private void saveToAppDatabase(final Message message){
@@ -305,6 +370,16 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                         context,
                         SaveMessageIntentService.class)
                 .putExtra(MESSAGE, message)
+        );
+    }
+
+    private void saveToServerDatabase(final Message message){
+        MessageWrapper messageWrapper = new MessageWrapper(message, userId);
+        context.startService(
+                new Intent(
+                        context,
+                        SaveToFlaskIntentService.class)
+                        .putExtra(MESSAGE_WRAPPER, messageWrapper)
         );
     }
 }

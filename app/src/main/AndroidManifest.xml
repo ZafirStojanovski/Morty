@@ -14,8 +14,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,6 +31,12 @@
             android:exported="false" />
         <service
             android:name=".GetUserId.UserIdIntentService"
+            android:exported="false" />
+        <service
+            android:name=".FlaskDatabase.SaveToFlaskIntentService"
+            android:exported="false" />
+        <service
+            android:name=".FlaskDatabase.LoadFromFlaskIntentService"
             android:exported="false"></service>
     </application>
 

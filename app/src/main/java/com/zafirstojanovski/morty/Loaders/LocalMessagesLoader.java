@@ -12,17 +12,29 @@ import java.util.List;
  * Created by Zafir Stojanovski on 3/3/2018.
  */
 
-public class MessageLoader extends AsyncTaskLoader<List<Message>> {
+public class LocalMessagesLoader extends AsyncTaskLoader<List<Message>> {
 
     private AppDatabase appDatabase;
+    private List<Message> messages;
 
-    public MessageLoader(Context context, AppDatabase appDatabase) {
+    public LocalMessagesLoader(Context context, AppDatabase appDatabase) {
         super(context);
         this.appDatabase = appDatabase;
     }
 
     @Override
+    protected void onStartLoading() {
+        if (messages != null){
+            deliverResult(messages);
+        }
+        if (messages == null || takeContentChanged()){
+            forceLoad();
+        }
+    }
+
+    @Override
     public List<Message> loadInBackground() {
-        return appDatabase.messageHistoryDao().getAll();
+        messages = appDatabase.messageHistoryDao().getAll();
+        return messages;
     }
 }
