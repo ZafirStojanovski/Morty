@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
 import static com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE;

@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".AskMorty.MortyIntentService"
+            android:name=".AskReddit.RedditIntentService"
             android:exported="false" />
         <service
             android:name=".RoomPersistance.SaveMessageIntentService"

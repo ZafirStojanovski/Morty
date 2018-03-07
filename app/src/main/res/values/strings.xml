@@ -13,4 +13,11 @@
     <string name="password"> Cj5rBYYVUgld</string>
     <string name="workspace_id">1f5a3c51-d7af-47ed-841a-ef9dbf749f02</string>
     <string name="negative_reponse">I didn\'t understand. You can try rephrasing.</string>
+
+    <string-array name="finkiFAQ">
+        <item>Are there scholarships?</item>
+        <item>Tell me about Quotas.</item>
+        <item>How do I know if I\'m good enough to enroll?</item>
+        <item>Which high school subjects should I choose for my finals?</item>
+    </string-array>
 </resources>

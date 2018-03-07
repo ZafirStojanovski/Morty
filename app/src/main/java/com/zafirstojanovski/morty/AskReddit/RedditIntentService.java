@@ -1,4 +1,4 @@
-package com.zafirstojanovski.morty.AskMorty;
+package com.zafirstojanovski.morty.AskReddit;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -17,15 +17,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.zafirstojanovski.morty.Fragments.ChatFragment.STATEMENT;
 
-public class MortyIntentService extends IntentService {
+public class RedditIntentService extends IntentService {
 
-    public static final String RESPONSE_RECEIVED = "com.zafirstojanovski.morty.AskMorty.MortyIntentService.RESPONSE_RECEIVED";
-    public static final String RESPONSE = "com.zafirstojanovski.morty.AskMorty.MortyIntentService.RESPONSE";
-    private static final String CLASS_NAME = "MortyIntentService";
+    public static final String RESPONSE_RECEIVED = "com.zafirstojanovski.morty.AskReddit.RedditIntentService.RESPONSE_RECEIVED";
+    public static final String RESPONSE = "com.zafirstojanovski.morty.AskReddit.RedditIntentService.RESPONSE";
+    private static final String CLASS_NAME = "RedditIntentService";
 
-    private MortyWebService service;
+    private RedditWebService service;
 
-    public MortyIntentService() {
+    public RedditIntentService() {
         super(CLASS_NAME);
     }
 
@@ -45,25 +45,25 @@ public class MortyIntentService extends IntentService {
                 .client(okHttpClient)
                 .build();
 
-        service = retrofit.create(MortyWebService.class);
+        service = retrofit.create(RedditWebService.class);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         String statement = intent.getStringExtra(STATEMENT);
 
-        Call<MortyResponse> call = service.getAnswer(statement);
+        Call<RedditResponse> call = service.getAnswer(statement);
 
-        call.enqueue(new Callback<MortyResponse>() {
+        call.enqueue(new Callback<RedditResponse>() {
             @Override
-            public void onResponse(Call<MortyResponse> call, Response<MortyResponse> response) {
-                MortyResponse mortyResponse = response.body();
+            public void onResponse(Call<RedditResponse> call, Response<RedditResponse> response) {
+                RedditResponse redditResponse = response.body();
                 sendBroadcast(new Intent(RESPONSE_RECEIVED)
-                        .putExtra(RESPONSE, mortyResponse.response));
+                        .putExtra(RESPONSE, redditResponse.response));
             }
 
             @Override
-            public void onFailure(Call<MortyResponse> call, Throwable t) {
+            public void onFailure(Call<RedditResponse> call, Throwable t) {
                 Log.i(CLASS_NAME, t.getMessage());
             }
         });

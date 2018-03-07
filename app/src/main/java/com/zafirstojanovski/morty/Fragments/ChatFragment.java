@@ -25,7 +25,7 @@ import com.ibm.watson.developer_cloud.conversation.v1.model.RuntimeIntent;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
-import com.zafirstojanovski.morty.AskMorty.MortyIntentService;
+import com.zafirstojanovski.morty.AskReddit.RedditIntentService;
 import com.zafirstojanovski.morty.ChatkitEssentials.Author;
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
 import com.zafirstojanovski.morty.FlaskDatabase.SaveToFlaskIntentService;
@@ -37,8 +37,8 @@ import com.zafirstojanovski.morty.R;
 import com.zafirstojanovski.morty.RoomPersistance.AppDatabase;
 import com.zafirstojanovski.morty.RoomPersistance.SaveMessageIntentService;
 
-import static com.zafirstojanovski.morty.AskMorty.MortyIntentService.RESPONSE_RECEIVED;
-import static com.zafirstojanovski.morty.AskMorty.MortyIntentService.RESPONSE;
+import static com.zafirstojanovski.morty.AskReddit.RedditIntentService.RESPONSE_RECEIVED;
+import static com.zafirstojanovski.morty.AskReddit.RedditIntentService.RESPONSE;
 import static com.zafirstojanovski.morty.GetUserId.UserIdIntentService.RESPONSE_USER_ID_RECEIVED;
 import static com.zafirstojanovski.morty.GetUserId.UserIdIntentService.RESPONSE_USER_ID;
 
@@ -50,7 +50,9 @@ import java.util.List;
  * Created by Zafir Stojanovski on 2/25/2018.
  */
 
+
 public class ChatFragment extends Fragment implements MessageInput.InputListener {
+
 
     private Activity activity;
     private Context context;
@@ -80,10 +82,11 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public static final String STATEMENT = "com.zafirstojanovski.morty.Fragments.ChatFragment.STATEMENT";
     public static final String MESSAGE = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE";
     public static final String MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_ID";
+    public static final String LAST_MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.LAST_MESSAGE_ID";
     public static final String USER_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.USER_ID";
     public static final String SHARED_PREFERENCES = "com.zafirstojanovski.morty.Fragments.ChatFragment.SHARED_PREFERENCES";
     public static final String MESSAGE_WRAPPER = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_WRAPPER";
-    public static final String LAST_MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.LAST_MESSAGE_ID";
+    private static final java.lang.String LOCAL_DATA_LOADED = "com.zafirstojanovski.morty.Fragments.ChatFragment.LOCAL_DATA_LOADED";
     private static final double CONFIDENCE_THRESHOLD = 0.72;
 
     private UpdateChatReceiver updateChatReceiver;
@@ -91,14 +94,11 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
 
     public ChatFragment() {}
 
+
     public static ChatFragment newInstance() {
         return new ChatFragment();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Nullable
     @Override
@@ -109,6 +109,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         setupContext();
         setupChatKit(getView());
         setupBroadcastReceivers();
@@ -116,6 +117,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         setupAppDatabase();
         setupLoadMoreListener();
     }
+
 
     @Override
     public void onStart() {
@@ -135,6 +137,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         activity.unregisterReceiver(updateUserIdReceiver);
         storeMessageId();
     }
+
 
     private void setupContext() {
         activity = this.getActivity();
@@ -173,8 +176,13 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
 
             @Override
             public void onLoadFinished(Loader<List<Message>> loader, List<Message> data) {
-                adapter.addToEnd(data, true); // fill data to adapter
-                lastMessageId = data.size() > 0 ? data.get(data.size() - 1).getId() : "0";
+                if (data.size() > 0){
+                    adapter.addToEnd(data, true); // fill data to adapter
+                    lastMessageId = data.get(data.size() - 1).getId();
+                }
+                else {
+                    lastMessageId = "0";
+                }
                 adapter.setLoadMoreListener(loadMoreListener); // start listening for onLoadMore events now.
             }
 
@@ -258,9 +266,9 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     @Override
     public boolean onSubmit(CharSequence input) {
         writeStatement(input.toString().trim());
-        getWatsonResponse(input.toString().trim());
         return true;
     }
+
 
     private void getWatsonResponse(final String inputMessage) {
         new Thread(new Runnable() {
@@ -320,7 +328,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
             getActivity().startService(
                     new Intent(
                             getActivity(),
-                            MortyIntentService.class
+                            RedditIntentService.class
                     ).putExtra(STATEMENT, originalInputMessage)
             );
         }
@@ -350,11 +358,12 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                 .apply();
     }
 
-    private void writeStatement(String statement){
+    public void writeStatement(String statement){
         Message messageFromSender = new Message((++messageId).toString(), statement , sender, new Date());
         adapter.addToStart(messageFromSender, true);
         saveToAppDatabase(messageFromSender);
         saveToServerDatabase(messageFromSender);
+        getWatsonResponse(statement);
     }
 
     private void writeResponse(final String response){
@@ -382,4 +391,5 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                         .putExtra(MESSAGE_WRAPPER, messageWrapper)
         );
     }
+
 }
