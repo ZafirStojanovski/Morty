@@ -51,9 +51,15 @@ public class UserIdIntentService extends IntentService {
         call.enqueue(new Callback<UserIdResponse>() {
             @Override
             public void onResponse(Call<UserIdResponse> call, Response<UserIdResponse> response) {
-                UserIdResponse userIdResponse = response.body();
-                sendBroadcast(new Intent(RESPONSE_USER_ID_RECEIVED)
-                        .putExtra(RESPONSE_USER_ID, userIdResponse.userId));
+                try {
+                    UserIdResponse userIdResponse = response.body();
+                    sendBroadcast(new Intent(RESPONSE_USER_ID_RECEIVED)
+                            .putExtra(RESPONSE_USER_ID, userIdResponse.userId));
+                }catch (NullPointerException e){
+                    Log.e("UserIdResponseNull", e.getMessage());
+                    sendBroadcast(new Intent(RESPONSE_USER_ID_RECEIVED)
+                            .putExtra(RESPONSE_USER_ID, 0L));
+                }
             }
 
             @Override

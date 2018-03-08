@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Morty</string>
-    <string name="tab_text_1">Settings</string>
-    <string name="tab_text_2">Chat</string>
-    <string name="tab_text_3">Favorites</string>
+    <string name="tab_text_1">FAQ</string>
+    <string name="tab_text_2">MORTY</string>
+    <string name="tab_text_3">SETTINGS</string>
     <string name="action_settings">Settings</string>
     <string name="localhost_ip">http://192.168.15.211:5000/</string>
     <string name="morty_name">Morty the AI</string>
@@ -13,11 +13,34 @@
     <string name="password"> Cj5rBYYVUgld</string>
     <string name="workspace_id">1f5a3c51-d7af-47ed-841a-ef9dbf749f02</string>
     <string name="negative_reponse">I didn\'t understand. You can try rephrasing.</string>
+    <string name="censor_morty">Censor Morty</string>
+    <string name="sync_messages">Sync messages</string>
+    <string name="delete_messages">Delete messages</string>
+    <string name="app">App</string>
+    <string name="about">About</string>
+    <string name="morty">Morty</string>
+    <string name="creator">Creator</string>
+    <string name="finki">FINKI</string>
+    <string name="reddit">Reddit</string>
+    <string name="connect_to_internet">Please connect to the Internet</string>
+    <string name="wait_morty">Please wait for Morty\'s response</string>
 
     <string-array name="finkiFAQ">
-        <item>Are there scholarships?</item>
+        <item>Are there requisite subjects that I should take?</item>
+        <item>Are there any scholarships?</item>
         <item>Tell me about Quotas.</item>
         <item>How do I know if I\'m good enough to enroll?</item>
         <item>Which high school subjects should I choose for my finals?</item>
+        <item>I want to know more about CSE.</item>
+    </string-array>
+
+    <string-array name="redditFAQ">
+        <item>What\'s your name?</item>
+        <item>What\'s the meaning of life?</item>
+        <item>Is there life somewhere else in the Universe?</item>
+        <item>Do you have emotions?</item>
+        <item>Tell me your best story.</item>
+        <item>What\'s your opinion on gender equality?</item>
+        <item>What\'s your favorite destination in the whole world?</item>
     </string-array>
 </resources>

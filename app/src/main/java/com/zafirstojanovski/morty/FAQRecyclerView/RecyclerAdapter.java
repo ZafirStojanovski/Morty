@@ -1,12 +1,15 @@
 package com.zafirstojanovski.morty.FAQRecyclerView;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.design.widget.TabLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zafirstojanovski.morty.Fragments.FAQFragment;
 import com.zafirstojanovski.morty.R;
@@ -21,16 +24,18 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
     private ArrayList<Question> questions;
     private FAQFragment.OnQuestionSelectedListener listener;
+    private Context context;
 
-    public RecyclerAdapter(FAQFragment.OnQuestionSelectedListener listener, ArrayList<Question> questions) {
+    public RecyclerAdapter(Context context, FAQFragment.OnQuestionSelectedListener listener, ArrayList<Question> questions) {
         this.questions = questions;
         this.listener = listener;
+        this.context = context;
     }
 
     @Override
     public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.faq_item_layout, parent, false);
-        return new RecyclerViewHolder(listener, itemView);
+        return new RecyclerViewHolder(context, listener, itemView);
     }
 
     @Override
@@ -48,11 +53,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         TextView questionTextView;
         FAQFragment.OnQuestionSelectedListener listener;
+        Context context;
 
-        public RecyclerViewHolder(FAQFragment.OnQuestionSelectedListener listener, View itemView) {
+        public RecyclerViewHolder(Context context, FAQFragment.OnQuestionSelectedListener listener, View itemView) {
             super(itemView);
             questionTextView = itemView.findViewById(R.id.questionTextView);
             this.listener = listener;
+            this.context = context;
 
             itemView.setOnClickListener(this);
         }
@@ -60,7 +67,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Recycl
 
         @Override
         public void onClick(View view) {
-            listener.onQuestionSelected(questionTextView.getText().toString());
+            if (checkInternetConnection()){
+                listener.onQuestionSelected(questionTextView.getText().toString());
+            } else {
+                Toast.makeText(context, R.string.connect_to_internet, Toast.LENGTH_SHORT).show();
+            }
+
         }
+
+        private boolean checkInternetConnection(){
+            ConnectivityManager cm =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            return netInfo != null && netInfo.isConnectedOrConnecting();
+        }
+
     }
 }

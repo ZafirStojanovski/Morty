@@ -1,15 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/gray_light"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Settings tab" />
-</RelativeLayout>
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_phone" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/app"
+                android:textSize="32sp"
+                android:textColor="@color/greenHighlight"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/grayFirm"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_censor" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/censor_morty"
+                android:textSize="20sp"
+                android:textColor="@color/grayFirm"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Switch
+                android:id="@+id/censorSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_sync" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/sync_messages"
+                android:textSize="20sp"
+                android:textColor="@color/grayFirm"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Switch
+                android:id="@+id/syncSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:checked="true" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/deleteMessagesView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:onClick="deleteMessages">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_delete" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/delete_messages"
+                android:textSize="20sp"
+                android:textColor="@color/grayFirm"
+                android:textStyle="bold" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_info" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/about"
+                android:textSize="32sp"
+                android:textColor="@color/greenHighlight"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/grayFirm"/>
+
+
+        <LinearLayout
+            android:id="@+id/aboutMorty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_bot" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/morty"
+                android:textSize="20sp"
+                android:textColor="@color/grayFirm"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/aboutCreator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp">
+
+            <ImageView
+                android:layout_gravity="center_vertical"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/ic_creator" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="@string/creator"
+                android:textSize="20sp"
+                android:textColor="@color/grayFirm"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

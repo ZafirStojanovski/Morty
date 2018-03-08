@@ -7,13 +7,10 @@
         android:id="@+id/questionTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:paddingHorizontal="25dp"
-        android:paddingVertical="15dp"
-        android:text="How can you help me, when you're just a stupid little robot?"
+        android:paddingTop="10dp"
         android:textAlignment="viewStart"
-        android:textSize="17sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="3dp"/>
+        android:textColor="@color/grayFirm"/>
 
 </RelativeLayout>

@@ -51,12 +51,17 @@ public class SaveToFlaskIntentService extends IntentService {
         call.enqueue(new Callback<MessageWrapper>() {
             @Override
             public void onResponse(Call<MessageWrapper> call, Response<MessageWrapper> response) {
-                Log.i("SaveToFlaskSucc", response.body().getMessage().getId() + "");
+                try{
+                    Log.i("SaveToFlaskSucc", response.body().getMessage().getId() + "");
+                }
+                catch (NullPointerException e){
+                    Log.e("SaveToFlaskFail", e.getMessage());
+                }
             }
 
             @Override
             public void onFailure(Call<MessageWrapper> call, Throwable t) {
-                Log.i("SaveToFlaskFail", t.getMessage());
+                Log.e("SaveToFlaskFail", t.getMessage());
             }
         });
     }

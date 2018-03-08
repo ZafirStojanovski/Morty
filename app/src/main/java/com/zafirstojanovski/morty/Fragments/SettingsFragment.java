@@ -4,9 +4,11 @@ package com.zafirstojanovski.morty.Fragments;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.zafirstojanovski.morty.R;
 
@@ -15,6 +17,9 @@ import com.zafirstojanovski.morty.R;
  */
 
 public class SettingsFragment extends Fragment {
+
+    LinearLayout deleteMessagesListener;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
@@ -25,5 +30,17 @@ public class SettingsFragment extends Fragment {
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        deleteMessagesListener = getActivity().findViewById(R.id.deleteMessagesView);
+        deleteMessagesListener.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("lin lay", "onClick");
+            }
+        });
     }
 }

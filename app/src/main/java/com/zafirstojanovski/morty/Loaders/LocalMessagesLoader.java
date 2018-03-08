@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
+import com.zafirstojanovski.morty.Fragments.ChatFragment;
 import com.zafirstojanovski.morty.RoomPersistance.AppDatabase;
 
 import java.util.List;

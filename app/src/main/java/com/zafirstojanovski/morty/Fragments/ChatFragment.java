@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -16,12 +18,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.ibm.watson.developer_cloud.conversation.v1.Conversation;
 import com.ibm.watson.developer_cloud.conversation.v1.model.InputData;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageOptions;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageResponse;
 import com.ibm.watson.developer_cloud.conversation.v1.model.RuntimeIntent;
+import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
@@ -64,8 +69,11 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     private MessagesList messagesList;
     private MessagesListAdapter<Message> adapter;
     private MessageInput inputView;
-    private Author sender;
-    private Author receiver;
+    private Author rick;
+    private Author morty;
+    private ImageLoader imageLoader;
+
+    public static String evilMortyImage = new StringBuilder().append(R.drawable.realistic_evil_morty).toString();
 
     private MessagesListAdapter.OnLoadMoreListener loadMoreListener;
 
@@ -82,15 +90,14 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public static final String STATEMENT = "com.zafirstojanovski.morty.Fragments.ChatFragment.STATEMENT";
     public static final String MESSAGE = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE";
     public static final String MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_ID";
-    public static final String LAST_MESSAGE_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.LAST_MESSAGE_ID";
     public static final String USER_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.USER_ID";
     public static final String SHARED_PREFERENCES = "com.zafirstojanovski.morty.Fragments.ChatFragment.SHARED_PREFERENCES";
     public static final String MESSAGE_WRAPPER = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_WRAPPER";
-    private static final java.lang.String LOCAL_DATA_LOADED = "com.zafirstojanovski.morty.Fragments.ChatFragment.LOCAL_DATA_LOADED";
     private static final double CONFIDENCE_THRESHOLD = 0.72;
 
     private UpdateChatReceiver updateChatReceiver;
     private UpdateUserIdReceiver updateUserIdReceiver;
+    private NetworkChangeReceiver networkChangeReceiver;
 
     public ChatFragment() {}
 
@@ -106,6 +113,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -113,8 +121,9 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         setupContext();
         setupChatKit(getView());
         setupBroadcastReceivers();
-        setupLoaders();
         setupAppDatabase();
+        setupLoaders();
+        loadFromLocalDatabase();
         setupLoadMoreListener();
     }
 
@@ -123,11 +132,14 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public void onStart() {
         super.onStart();
 
-        IntentFilter filter = new IntentFilter(RESPONSE_RECEIVED);
-        activity.registerReceiver(updateChatReceiver, filter);
+        IntentFilter updateChatFilter = new IntentFilter(RESPONSE_RECEIVED);
+        activity.registerReceiver(updateChatReceiver, updateChatFilter);
 
-        filter = new IntentFilter(RESPONSE_USER_ID_RECEIVED);
-        activity.registerReceiver(updateUserIdReceiver, filter);
+        IntentFilter updateUserIdFilter = new IntentFilter(RESPONSE_USER_ID_RECEIVED);
+        activity.registerReceiver(updateUserIdReceiver, updateUserIdFilter);
+
+        IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        activity.registerReceiver(networkChangeReceiver, networkChangeFilter);
     }
 
     @Override
@@ -135,7 +147,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         super.onStop();
         activity.unregisterReceiver(updateChatReceiver);
         activity.unregisterReceiver(updateUserIdReceiver);
-        storeMessageId();
+        activity.unregisterReceiver(networkChangeReceiver);
     }
 
 
@@ -147,7 +159,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         userId = sharedPreferences.getLong(USER_ID, 0L);
 
         // User hasn't been assigned an ID
-        if (userId == 0L){
+        if (!hasUserId() && checkInternetConnection()){
             getNewUserId();
         }
     }
@@ -164,6 +176,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     private void setupBroadcastReceivers() {
         this.updateChatReceiver = new UpdateChatReceiver();
         this.updateUserIdReceiver = new UpdateUserIdReceiver();
+        this.networkChangeReceiver = new NetworkChangeReceiver();
     }
 
 
@@ -202,8 +215,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        lastMessageId = messages.size()>0 ? messages.get(0).getId() : "0";
-                        adapter.addToEnd(messages, true); // fill data to adapter
+                        if (messages.size() > 0){
+                            lastMessageId = messages.get(0).getId();
+                            adapter.addToEnd(messages, true);
+                        }
                     }
                 }, 1000);
 
@@ -216,7 +231,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
 
     private void setupAppDatabase() {
         this.appDatabase = AppDatabase.getAppDatabase(context);
-        loadFromLocalDatabase();
     }
 
     private void loadFromLocalDatabase() {
@@ -231,11 +245,18 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private void setupChatKit(View rootView) {
+        imageLoader = new ImageLoader() {
+            @Override
+            public void loadImage(ImageView imageView, String url) {
+                imageView.setBackgroundResource(Integer.parseInt(url));
+            }
+        };
+
         messagesList = rootView.findViewById(R.id.messagesList);
         messageId = getMessageId();
-        sender = new Author(RICK_ID, getString(R.string.rick_name), null);
-        receiver = new Author(MORTY_ID, getString(R.string.morty_name), null);
-        adapter = new MessagesListAdapter<>(sender.getId(), null);
+        rick = new Author(RICK_ID, getString(R.string.rick_name), null);
+        morty = new Author(MORTY_ID, getString(R.string.morty_name), evilMortyImage);
+        adapter = new MessagesListAdapter<>(rick.getId(), imageLoader);
         messagesList.setAdapter(adapter);
         inputView = rootView.findViewById(R.id.input);
         inputView.setInputListener(this);
@@ -253,7 +274,8 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private Long getMessageId(){
-        return sharedPreferences.getLong(MESSAGE_ID, 0L);
+        return sharedPreferences
+                .getLong(MESSAGE_ID, 0L);
     }
 
     private void storeMessageId(){
@@ -265,8 +287,18 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
 
     @Override
     public boolean onSubmit(CharSequence input) {
-        writeStatement(input.toString().trim());
-        return true;
+        if (checkInternetConnection()){
+            if (messageId % 2 == 0){
+                writeStatement(input.toString().trim());
+                return true;
+            } else {
+                Toast.makeText(activity, R.string.wait_morty, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } else {
+            Toast.makeText(activity, R.string.connect_to_internet, Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
 
@@ -289,7 +321,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                             chatContext = response.getContext();
                         }
                         if (response.getOutput() != null && response.getOutput().containsKey("text")) {
-                            Log.i("http response", response.toString());
+                            Log.i("HTTP_RESPONSE", response.toString());
                             ArrayList responseList = (ArrayList) response.getOutput().get("text");
                             if (responseList != null && responseList.size() > 0){
                                 double confidence = 0;
@@ -321,7 +353,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private void resolveResponse(String watsonResponse, double confidence, String originalInputMessage){
-        if (confidence >= CONFIDENCE_THRESHOLD && !watsonResponse.contains(getString(R.string.negative_reponse))){
+        if (validateResponse(watsonResponse, confidence)){
             writeResponse(watsonResponse);
         }
         else {
@@ -334,6 +366,16 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         }
     }
 
+    private boolean validateResponse(String watsonResponse, double confidence) {
+        return confidence >= CONFIDENCE_THRESHOLD
+                && !watsonResponse.contains(getString(R.string.negative_reponse))
+                && !watsonResponse.trim().isEmpty();
+    }
+
+
+    /**
+     * A response from Reddit has been received
+     */
     private class UpdateChatReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -342,11 +384,28 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         }
     }
 
+    /**
+     * A new user id has been received
+     */
     private class UpdateUserIdReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             long userId = intent.getLongExtra(RESPONSE_USER_ID, 0L);
             storeUserId(userId);
+        }
+    }
+
+    /**
+        User has connected to the internet
+     */
+
+    public class NetworkChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(final Context context, final Intent intent) {
+            if(checkInternetConnection() && !hasUserId())
+            {
+                getNewUserId();
+            }
         }
     }
 
@@ -359,16 +418,18 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     public void writeStatement(String statement){
-        Message messageFromSender = new Message((++messageId).toString(), statement , sender, new Date());
+        Message messageFromSender = new Message((++messageId).toString(), statement, rick, new Date());
         adapter.addToStart(messageFromSender, true);
+        storeMessageId();
         saveToAppDatabase(messageFromSender);
         saveToServerDatabase(messageFromSender);
         getWatsonResponse(statement);
     }
 
     private void writeResponse(final String response){
-        Message messageFromReceiver = new Message((++messageId).toString(), response, receiver, new Date());
+        Message messageFromReceiver = new Message((++messageId).toString(), response, morty, new Date());
         adapter.addToStart(messageFromReceiver, true);
+        storeMessageId();
         saveToAppDatabase(messageFromReceiver);
         saveToServerDatabase(messageFromReceiver);
     }
@@ -383,13 +444,30 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private void saveToServerDatabase(final Message message){
-        MessageWrapper messageWrapper = new MessageWrapper(message, userId);
-        context.startService(
-                new Intent(
-                        context,
-                        SaveToFlaskIntentService.class)
-                        .putExtra(MESSAGE_WRAPPER, messageWrapper)
-        );
+        if (checkInternetConnection() && hasUserId()){
+            MessageWrapper messageWrapper = new MessageWrapper(message, userId);
+            context.startService(
+                    new Intent(
+                            context,
+                            SaveToFlaskIntentService.class)
+                            .putExtra(MESSAGE_WRAPPER, messageWrapper)
+            );
+        }
+        Log.i("SaveToServerDatabase", "No Internet / ID assigned");
     }
 
+    private boolean checkInternetConnection(){
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    private boolean checkSyncStatus() {
+        return true;
+    }
+
+    private boolean hasUserId(){
+        return userId != 0L;
+    }
 }

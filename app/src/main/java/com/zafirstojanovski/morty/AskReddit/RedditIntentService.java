@@ -57,14 +57,20 @@ public class RedditIntentService extends IntentService {
         call.enqueue(new Callback<RedditResponse>() {
             @Override
             public void onResponse(Call<RedditResponse> call, Response<RedditResponse> response) {
-                RedditResponse redditResponse = response.body();
-                sendBroadcast(new Intent(RESPONSE_RECEIVED)
-                        .putExtra(RESPONSE, redditResponse.response));
+                try {
+                    RedditResponse redditResponse = response.body();
+                    sendBroadcast(new Intent(RESPONSE_RECEIVED)
+                            .putExtra(RESPONSE, redditResponse.response));
+                }catch (Exception e){
+                    Log.e("RedditResponseFail", e.getMessage());
+                    sendBroadcast(new Intent(RESPONSE_RECEIVED)
+                            .putExtra(RESPONSE, "I'm sorry, I didn't quite get that."));
+                }
             }
 
             @Override
             public void onFailure(Call<RedditResponse> call, Throwable t) {
-                Log.i(CLASS_NAME, t.getMessage());
+                Log.e(CLASS_NAME, t.getMessage());
             }
         });
     }

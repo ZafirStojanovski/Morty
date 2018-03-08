@@ -5,29 +5,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/grayLight">
 
 
     <com.stfalcon.chatkit.messages.MessagesList
         android:id="@+id/messagesList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/input"
-        app:outcomingDefaultBubbleColor="@color/tabIndicator"
-        app:outcomingTextColor="@color/black"
-        app:outcomingTimeTextColor="@color/warm_grey_two"
-        app:incomingDefaultBubbleColor="@color/colorAccent"
-        app:incomingTextColor="@color/tabIndicator"
-        app:incomingTimeTextColor="@color/warm_grey_two"
-        />
+        android:layout_above="@+id/border"
+        app:dateHeaderFormat="dd MMMM yyyy"
+        android:background="@color/gray_light"
+        app:incomingDefaultBubbleColor="@color/white"
+        app:incomingDefaultBubblePressedColor="@color/white"
+        app:incomingDefaultBubbleSelectedColor="@color/white"
+        app:incomingTextColor="@color/morty_font"
+        app:incomingTextLinkColor="@color/dark_orange"
+            app:incomingTextSize="15sp"
+        app:incomingTextStyle="bold"
+        app:outcomingDefaultBubbleColor="@color/dark_orange"
+        app:outcomingDefaultBubblePressedColor="@color/dark_orange"
+        app:outcomingDefaultBubbleSelectedColor="@color/dark_orange"
+        app:outcomingTextColor="@color/white"
+        app:outcomingTextLinkColor="@color/cornflower_blue_dark"
+        app:outcomingTextSize="15sp"
+        app:outcomingTextStyle="bold"
+        app:textAutoLink="all"/>
+
+    <View
+        android:id="@+id/border"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/input"
+        android:background="@color/gray_dark"/>
 
     <com.stfalcon.chatkit.messages.MessageInput
         android:id="@+id/input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        app:inputHint="@string/hint_enter_a_message"
-        app:inputTextColor="@color/dialog_divider"
-        app:inputButtonBackground="@color/colorAccent"/>
+        android:background="@color/gray_light"
+        app:attachmentButtonDefaultIconColor="@color/orange"
+        app:attachmentButtonDefaultIconPressedColor="@color/dark_orange"
+        app:inputButtonDefaultBgColor="@color/orange"
+        app:inputButtonDefaultBgPressedColor="@color/dark_orange"
+        app:inputCursorDrawable="@drawable/shape_custom_cursor"
+        app:inputHint="@string/hint_enter_a_message"/>
 
 </RelativeLayout>

@@ -33,8 +33,12 @@ public class FAQFragment extends Fragment {
     private RecyclerView finkiRecyclerView;
     private RecyclerView.Adapter finkiRecyclerAdapter;
     private RecyclerView.LayoutManager finkiLayoutManager;
-
     private ArrayList<Question> finkiQuestions;
+
+    private RecyclerView redditRecyclerView;
+    private RecyclerView.Adapter redditRecyclerAdapter;
+    private RecyclerView.LayoutManager redditLayoutManager;
+    private ArrayList<Question> redditQuestions;
 
     @Nullable
     @Override
@@ -76,16 +80,29 @@ public class FAQFragment extends Fragment {
         for (String question: finkiFAQ){
             finkiQuestions.add(new Question(question));
         }
+
+        redditQuestions = new ArrayList<>();
+        String[] redditFAQ = getResources().getStringArray(R.array.redditFAQ);
+
+        for (String question: redditFAQ){
+            redditQuestions.add(new Question(question));
+        }
+
     }
 
     private void initRecyclers() {
         finkiRecyclerView = getActivity().findViewById(R.id.finkiRecyclerView);
         finkiRecyclerView.setHasFixedSize(true);
-
-        finkiRecyclerAdapter = new RecyclerAdapter(onQuestionSelectedListener, finkiQuestions);
+        finkiRecyclerAdapter = new RecyclerAdapter(getContext(), onQuestionSelectedListener, finkiQuestions);
         finkiLayoutManager = new LinearLayoutManager(getContext());
-
         finkiRecyclerView.setAdapter(finkiRecyclerAdapter);
         finkiRecyclerView.setLayoutManager(finkiLayoutManager);
+
+        redditRecyclerView = getActivity().findViewById(R.id.redditRecyclerView);
+        redditRecyclerView.setHasFixedSize(true);
+        redditRecyclerAdapter = new RecyclerAdapter(getContext(), onQuestionSelectedListener, redditQuestions);
+        redditLayoutManager = new LinearLayoutManager(getContext());
+        redditRecyclerView.setAdapter(redditRecyclerAdapter);
+        redditRecyclerView.setLayoutManager(redditLayoutManager);
     }
 }

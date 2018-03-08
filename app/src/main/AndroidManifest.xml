@@ -3,6 +3,7 @@
     package="com.zafirstojanovski.morty">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -35,9 +36,6 @@
         <service
             android:name=".FlaskDatabase.SaveToFlaskIntentService"
             android:exported="false" />
-        <service
-            android:name=".FlaskDatabase.LoadFromFlaskIntentService"
-            android:exported="false"></service>
     </application>
 
 </manifest>

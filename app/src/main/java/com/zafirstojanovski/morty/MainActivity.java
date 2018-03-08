@@ -1,5 +1,8 @@
 package com.zafirstojanovski.morty;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -23,15 +26,15 @@ public class MainActivity extends AppCompatActivity implements FAQFragment.OnQue
     public ChatFragment chatFragment;
 
     @Override
-    public void onQuestionSelected(String question) {
-        chatFragment.writeStatement(question);
+    public void onQuestionSelected(final String question) {
+        selectPage(1);
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                selectPage(1);
+                chatFragment.writeStatement(question);
             }
-        }, 200);
+        }, 150);
     }
 
     private void selectPage(int pageIndex) {
@@ -99,4 +102,5 @@ public class MainActivity extends AppCompatActivity implements FAQFragment.OnQue
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
     }
+
 }

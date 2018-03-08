@@ -67,7 +67,9 @@ public class FlaskMessagesLoader extends AsyncTaskLoader<List<Message>> {
             List<FlaskMessageResponse> flaskMessages = call.execute().body();
 
             for (FlaskMessageResponse flaskMessage : flaskMessages) {
-                Author author = new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), flaskMessage.getAuthorAvatar());
+                Author author = flaskMessage.getAuthorAvatar().equals("") ?
+                        new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), null) :
+                        new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), flaskMessage.getAuthorAvatar());
 
                 Date date = getDate(flaskMessage.getCreatedAt());
 
@@ -76,7 +78,7 @@ public class FlaskMessagesLoader extends AsyncTaskLoader<List<Message>> {
             }
 
         } catch (IOException e) {
-            Log.i("FlaskMessagesLoader", e.getMessage());
+            Log.e("FlaskMessagesLoader", e.getMessage());
         }
 
         return messages;

@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteConstraintException;
 import android.util.Log;
 
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
@@ -42,7 +43,13 @@ public class SaveMessageIntentService extends IntentService {
             updateStoredMessages(storedMessages);
         }
 
-        appDatabase.messageHistoryDao().insertMessage(message);
+        try {
+            appDatabase.messageHistoryDao().insertMessage(message);
+        }
+        catch (SQLiteConstraintException e){
+            Log.e("LOCAL INSERT EXCEPTION", message.getId() + ": " + e.getMessage());
+        }
+
     }
 
     private void freeUpSpotInDatabase(AppDatabase appDatabase, String deleteMessageId) {
@@ -50,7 +57,8 @@ public class SaveMessageIntentService extends IntentService {
     }
 
     private int getStoredMessages() {
-        return sharedPreferences.getInt(STORED_MESSAGES, 0);
+        return sharedPreferences
+                .getInt(STORED_MESSAGES, 0);
     }
 
     private void updateStoredMessages(int storedMessages){
