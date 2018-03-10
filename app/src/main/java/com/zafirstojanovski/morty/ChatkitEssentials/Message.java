@@ -3,9 +3,11 @@ package com.zafirstojanovski.morty.ChatkitEssentials;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
+import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,7 +17,7 @@ import java.util.Date;
  */
 
 @Entity(tableName = "messageHistory")
-public class Message implements IMessage, Serializable {
+public class Message implements IMessage, MessageContentType.Image, Serializable {
 
     @PrimaryKey
     private String id;
@@ -29,11 +31,16 @@ public class Message implements IMessage, Serializable {
     @ColumnInfo(name="created_at")
     private Date createdAt;
 
+    @Ignore
+    private String imageUrl;
+
+
     public Message(String id, String text, Author user, Date createdAt) {
         this.id = id;
         this.text = text;
         this.user = user;
         this.createdAt = createdAt;
+        this.imageUrl = null;
     }
 
     @Override
@@ -73,7 +80,17 @@ public class Message implements IMessage, Serializable {
     }
 
     @Override
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    @Override
     public String toString() {
         return String.format("%s.%s: %s", id, user, text);
     }
+
 }

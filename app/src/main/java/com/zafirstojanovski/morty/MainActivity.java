@@ -1,8 +1,5 @@
 package com.zafirstojanovski.morty;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +9,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.zafirstojanovski.morty.Fragments.ChatFragment;
 import com.zafirstojanovski.morty.Fragments.FAQFragment;
 import com.zafirstojanovski.morty.Fragments.SettingsFragment;
 
-public class MainActivity extends AppCompatActivity implements FAQFragment.OnQuestionSelectedListener{
+public class MainActivity extends AppCompatActivity implements FAQFragment.OnQuestionSelectedListener,
+            SettingsFragment.OnDeleteMessagesListener{
 
     private SectionsPagerAdapter sectionsPagerAdapter;
     private TabLayout tabLayout;
@@ -27,15 +26,26 @@ public class MainActivity extends AppCompatActivity implements FAQFragment.OnQue
 
     @Override
     public void onQuestionSelected(final String question) {
-        selectPage(1);
+        if (chatFragment.mortyResponded()){
+            selectPage(1);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                chatFragment.writeStatement(question);
-            }
-        }, 150);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    chatFragment.writeStatement(question);
+                }
+            }, 150);
+        }
+        else {
+            Toast.makeText(this, R.string.wait_morty, Toast.LENGTH_SHORT).show();
+        }
     }
+
+    @Override
+    public void onDeleteMessages() {
+        chatFragment.deleteMessages();
+    }
+
 
     private void selectPage(int pageIndex) {
         tabLayout.setScrollPosition(pageIndex,0f,true);
@@ -83,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements FAQFragment.OnQue
         setupTabLayout();
     }
 
+
     private void setupTabLayout() {
         // adapter
         sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -102,5 +113,4 @@ public class MainActivity extends AppCompatActivity implements FAQFragment.OnQue
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
     }
-
 }

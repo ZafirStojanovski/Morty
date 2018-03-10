@@ -64,7 +64,7 @@ public class RedditIntentService extends IntentService {
                 }catch (Exception e){
                     Log.e("RedditResponseFail", e.getMessage());
                     sendBroadcast(new Intent(RESPONSE_RECEIVED)
-                            .putExtra(RESPONSE, "I'm sorry, I didn't quite get that."));
+                            .putExtra(RESPONSE, getString(R.string.diplomatic_response)));
                 }
             }
 

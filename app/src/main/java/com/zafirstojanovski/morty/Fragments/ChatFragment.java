@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.ibm.watson.developer_cloud.conversation.v1.Conversation;
 import com.ibm.watson.developer_cloud.conversation.v1.model.InputData;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageOptions;
@@ -33,6 +34,7 @@ import com.stfalcon.chatkit.messages.MessagesListAdapter;
 import com.zafirstojanovski.morty.AskReddit.RedditIntentService;
 import com.zafirstojanovski.morty.ChatkitEssentials.Author;
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
+import com.zafirstojanovski.morty.FlaskDatabase.DeleteFromFlaskIntentService;
 import com.zafirstojanovski.morty.FlaskDatabase.SaveToFlaskIntentService;
 import com.zafirstojanovski.morty.FlaskDatabase.MessageWrapper;
 import com.zafirstojanovski.morty.GetUserId.UserIdIntentService;
@@ -40,12 +42,15 @@ import com.zafirstojanovski.morty.Loaders.FlaskMessagesLoader;
 import com.zafirstojanovski.morty.Loaders.LocalMessagesLoader;
 import com.zafirstojanovski.morty.R;
 import com.zafirstojanovski.morty.RoomPersistance.AppDatabase;
+import com.zafirstojanovski.morty.RoomPersistance.DeleteAllMessagesIntentService;
 import com.zafirstojanovski.morty.RoomPersistance.SaveMessageIntentService;
 
 import static com.zafirstojanovski.morty.AskReddit.RedditIntentService.RESPONSE_RECEIVED;
 import static com.zafirstojanovski.morty.AskReddit.RedditIntentService.RESPONSE;
 import static com.zafirstojanovski.morty.GetUserId.UserIdIntentService.RESPONSE_USER_ID_RECEIVED;
 import static com.zafirstojanovski.morty.GetUserId.UserIdIntentService.RESPONSE_USER_ID;
+import static com.zafirstojanovski.morty.Fragments.SettingsFragment.CENSOR_SWITCH;
+import static com.zafirstojanovski.morty.Fragments.SettingsFragment.SYNC_SWITCH;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,7 +62,6 @@ import java.util.List;
 
 
 public class ChatFragment extends Fragment implements MessageInput.InputListener {
-
 
     private Activity activity;
     private Context context;
@@ -73,7 +77,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     private Author morty;
     private ImageLoader imageLoader;
 
-    public static String evilMortyImage = new StringBuilder().append(R.drawable.realistic_evil_morty).toString();
+    private String evilMortyImage = new StringBuilder().append(R.drawable.realistic_evil_morty).toString();
+    private String typingIndicatorImage = new StringBuilder().append(R.drawable.loading_2).toString();
+
+    private Message mortyTypingMessage;
 
     private MessagesListAdapter.OnLoadMoreListener loadMoreListener;
 
@@ -93,7 +100,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public static final String USER_ID = "com.zafirstojanovski.morty.Fragments.ChatFragment.USER_ID";
     public static final String SHARED_PREFERENCES = "com.zafirstojanovski.morty.Fragments.ChatFragment.SHARED_PREFERENCES";
     public static final String MESSAGE_WRAPPER = "com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_WRAPPER";
-    private static final double CONFIDENCE_THRESHOLD = 0.72;
+    private static final double CONFIDENCE_THRESHOLD = 0.76;
 
     private UpdateChatReceiver updateChatReceiver;
     private UpdateUserIdReceiver updateUserIdReceiver;
@@ -143,6 +150,12 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        adapter.addToStart(mortyTypingMessage, true);
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
         activity.unregisterReceiver(updateChatReceiver);
@@ -155,13 +168,8 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         activity = this.getActivity();
         context = activity.getApplicationContext();
 
-        sharedPreferences = getActivity().getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        sharedPreferences = activity.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         userId = sharedPreferences.getLong(USER_ID, 0L);
-
-        // User hasn't been assigned an ID
-        if (!hasUserId() && checkInternetConnection()){
-            getNewUserId();
-        }
     }
 
     private void getNewUserId() {
@@ -248,7 +256,14 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         imageLoader = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
-                imageView.setBackgroundResource(Integer.parseInt(url));
+                if (url.equals(typingIndicatorImage)){
+                    Glide.with(context)
+                            .load(R.drawable.loading_3)
+                            .into(imageView);
+                } else {
+                    imageView.setBackgroundResource(Integer.parseInt(url));
+
+                }
             }
         };
 
@@ -260,6 +275,8 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         messagesList.setAdapter(adapter);
         inputView = rootView.findViewById(R.id.input);
         inputView.setInputListener(this);
+        mortyTypingMessage = new Message("-1", "", morty, null);
+        mortyTypingMessage.setImageUrl(typingIndicatorImage);
     }
 
     private void setupLoadMoreListener() {
@@ -288,7 +305,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     @Override
     public boolean onSubmit(CharSequence input) {
         if (checkInternetConnection()){
-            if (messageId % 2 == 0){
+            if (mortyResponded()){
                 writeStatement(input.toString().trim());
                 return true;
             } else {
@@ -299,6 +316,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
             Toast.makeText(activity, R.string.connect_to_internet, Toast.LENGTH_SHORT).show();
             return false;
         }
+    }
+
+    public boolean mortyResponded() {
+        return messageId % 2 == 0;
     }
 
 
@@ -352,9 +373,15 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         }).start();
     }
 
+    /**
+     * Resolve whether Watson's or Reddit's response is going to be taken.
+     */
     private void resolveResponse(String watsonResponse, double confidence, String originalInputMessage){
         if (validateResponse(watsonResponse, confidence)){
             writeResponse(watsonResponse);
+        }
+        else if (isSwitchChecked(CENSOR_SWITCH)){
+            writeResponse(getString(R.string.diplomatic_response));
         }
         else {
             getActivity().startService(
@@ -366,6 +393,9 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         }
     }
 
+    /**
+        Validate whether or not to write down Watson's response
+     */
     private boolean validateResponse(String watsonResponse, double confidence) {
         return confidence >= CONFIDENCE_THRESHOLD
                 && !watsonResponse.contains(getString(R.string.negative_reponse))
@@ -384,19 +414,16 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         }
     }
 
-    /**
-     * A new user id has been received
-     */
     private class UpdateUserIdReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            long userId = intent.getLongExtra(RESPONSE_USER_ID, 0L);
-            storeUserId(userId);
+            Long newUserId = intent.getLongExtra(RESPONSE_USER_ID, 0L);
+            storeUserId(newUserId);
         }
     }
 
     /**
-        User has connected to the internet
+        Internet connection state has altered
      */
 
     public class NetworkChangeReceiver extends BroadcastReceiver {
@@ -435,25 +462,27 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private void saveToAppDatabase(final Message message){
-        context.startService(
-                new Intent(
-                        context,
-                        SaveMessageIntentService.class)
-                .putExtra(MESSAGE, message)
-        );
+        if (isSwitchChecked(SYNC_SWITCH)){
+            context.startService(
+                    new Intent(
+                            context,
+                            SaveMessageIntentService.class
+                    ).putExtra(MESSAGE, message)
+            );
+        }
     }
 
     private void saveToServerDatabase(final Message message){
-        if (checkInternetConnection() && hasUserId()){
+        if (checkInternetConnection() && hasUserId() && isSwitchChecked(SYNC_SWITCH)){
             MessageWrapper messageWrapper = new MessageWrapper(message, userId);
             context.startService(
                     new Intent(
                             context,
-                            SaveToFlaskIntentService.class)
-                            .putExtra(MESSAGE_WRAPPER, messageWrapper)
+                            SaveToFlaskIntentService.class
+                    ).putExtra(MESSAGE_WRAPPER, messageWrapper)
             );
         }
-        Log.i("SaveToServerDatabase", "No Internet / ID assigned");
+        Log.i("SaveToServerDatabase", "No Internet / ID assigned / Switch turned off");
     }
 
     private boolean checkInternetConnection(){
@@ -463,11 +492,52 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    private boolean checkSyncStatus() {
-        return true;
+    private Boolean isSwitchChecked(String switchName){
+        return sharedPreferences
+                    .getBoolean(switchName, false);
     }
 
     private boolean hasUserId(){
         return userId != 0L;
     }
+
+    public void deleteMessages(){
+        deleteMessagesFromChat();
+        deleteMessagesFromAppDatabase();
+        deleteMessagesFromServerDatabase();
+        resetMessageIdCounters();
+    }
+
+
+    private void deleteMessagesFromChat() {
+        adapter.clear();
+        adapter.notifyDataSetChanged();
+    }
+
+    private void deleteMessagesFromAppDatabase() {
+        context.startService(
+                new Intent(
+                        activity,
+                        DeleteAllMessagesIntentService.class
+                )
+        );
+    }
+
+    private void deleteMessagesFromServerDatabase() {
+        if (checkInternetConnection()){
+            context.startService(
+                    new Intent(
+                            activity,
+                            DeleteFromFlaskIntentService.class
+                    ).putExtra(USER_ID, userId)
+            );
+        }
+    }
+
+    private void resetMessageIdCounters() {
+        messageId = 0L;
+        lastMessageId = "0";
+        storeMessageId();
+    }
+
 }

@@ -66,17 +66,18 @@ public class FlaskMessagesLoader extends AsyncTaskLoader<List<Message>> {
         try {
             List<FlaskMessageResponse> flaskMessages = call.execute().body();
 
-            for (FlaskMessageResponse flaskMessage : flaskMessages) {
-                Author author = flaskMessage.getAuthorAvatar().equals("") ?
-                        new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), null) :
-                        new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), flaskMessage.getAuthorAvatar());
+            if (flaskMessages != null){
+                for (FlaskMessageResponse flaskMessage : flaskMessages) {
+                    Author author = flaskMessage.getAuthorAvatar().equals("") ?
+                            new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), null) :
+                            new Author(flaskMessage.getAuthorId(), flaskMessage.getAuthorName(), flaskMessage.getAuthorAvatar());
 
-                Date date = getDate(flaskMessage.getCreatedAt());
+                    Date date = getDate(flaskMessage.getCreatedAt());
 
-                Message message = new Message(flaskMessage.getMessageId(), flaskMessage.getMessageText(), author, date);
-                messages.add(message);
+                    Message message = new Message(flaskMessage.getMessageId(), flaskMessage.getMessageText(), author, date);
+                    messages.add(message);
+                }
             }
-
         } catch (IOException e) {
             Log.e("FlaskMessagesLoader", e.getMessage());
         }

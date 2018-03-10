@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import com.zafirstojanovski.morty.GetUserId.UserIdResponse;
 import com.zafirstojanovski.morty.R;
 
 import java.util.concurrent.TimeUnit;
@@ -14,14 +15,15 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import static com.zafirstojanovski.morty.Fragments.ChatFragment.MESSAGE_WRAPPER;
 
-public class SaveToFlaskIntentService extends IntentService {
+import static com.zafirstojanovski.morty.Fragments.ChatFragment.USER_ID;
+
+public class DeleteFromFlaskIntentService extends IntentService {
 
     private FlaskWebService service;
 
-    public SaveToFlaskIntentService() {
-        super("SaveToFlaskIntentService");
+    public DeleteFromFlaskIntentService() {
+        super("DeleteFromFlaskIntentService");
     }
 
     @Override
@@ -44,24 +46,23 @@ public class SaveToFlaskIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        MessageWrapper messageWrapper = (MessageWrapper) intent.getSerializableExtra(MESSAGE_WRAPPER);
+        Long userId = intent.getLongExtra(USER_ID, 0L);
 
-        Call<MessageWrapper> call = service.addMessage(messageWrapper);
+        Call<UserIdResponse> call = service.deleteMessagesFromUser(userId);
 
-        call.enqueue(new Callback<MessageWrapper>() {
+        call.enqueue(new Callback<UserIdResponse>() {
             @Override
-            public void onResponse(Call<MessageWrapper> call, Response<MessageWrapper> response) {
-                try{
-                    Log.i("SaveToFlaskSucc", response.body().getMessage().getId() + "");
-                }
-                catch (Exception e){
-                    Log.e("SaveToFlaskFail", e.getMessage());
+            public void onResponse(Call<UserIdResponse> call, Response<UserIdResponse> response) {
+                try {
+                    Log.i("FlaskDeleteSucc", response.body().userId + "");
+                }catch (Exception e){
+                    Log.e("FlaskDeleteExc", e.getMessage());
                 }
             }
 
             @Override
-            public void onFailure(Call<MessageWrapper> call, Throwable t) {
-                Log.e("SaveToFlaskFail", t.getMessage());
+            public void onFailure(Call<UserIdResponse> call, Throwable t) {
+                Log.e("FlaskDeleteFail", t.getMessage());
             }
         });
     }

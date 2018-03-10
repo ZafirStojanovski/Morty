@@ -3,11 +3,11 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#292D3D</color>
     <color name="grayLight">#F0F3F8</color>
-    <color name="grayFirm">#888888</color>
+    <color name="gray_firm">#888888</color>
     <color name="greenHighlight">#24AC61</color>
     <color name="colorAccent">#EC693C</color>
-    <color name="finkiBlue">#4293D1</color>
-    <color name="redditRed">#FF3F18</color>
+    <color name="finki_blue">#4293D1</color>
+    <color name="reddit_red">#FF3F18</color>
     <color name="orange">#EC693C</color>
     <color name="dark_orange">#EC5B29</color>
 

@@ -41,7 +41,7 @@
                         android:paddingLeft="10dp"
                         android:text="@string/finki"
                         android:textSize="32sp"
-                        android:textColor="@color/finkiBlue"
+                        android:textColor="@color/finki_blue"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:layout_marginTop="5dp"
-                    android:background="@color/grayFirm"/>
+                    android:background="@color/gray_firm"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -92,7 +92,7 @@
                         android:paddingLeft="10dp"
                         android:text="@string/reddit"
                         android:textSize="32sp"
-                        android:textColor="@color/redditRed"
+                        android:textColor="@color/reddit_red"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -100,7 +100,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="2dp"
                     android:layout_marginTop="5dp"
-                    android:background="@color/grayFirm"/>
+                    android:background="@color/gray_firm"/>
 
 
                 <LinearLayout

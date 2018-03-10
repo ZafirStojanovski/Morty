@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_marginTop="5dp"
-            android:background="@color/grayFirm"/>
+            android:background="@color/gray_firm"/>
 
 
         <LinearLayout
@@ -61,7 +61,7 @@
                 android:paddingLeft="5dp"
                 android:text="@string/censor_morty"
                 android:textSize="20sp"
-                android:textColor="@color/grayFirm"
+                android:textColor="@color/gray_firm"
                 android:textStyle="bold" />
 
             <Space
@@ -96,7 +96,7 @@
                 android:paddingLeft="5dp"
                 android:text="@string/sync_messages"
                 android:textSize="20sp"
-                android:textColor="@color/grayFirm"
+                android:textColor="@color/gray_firm"
                 android:textStyle="bold" />
 
             <Space
@@ -134,7 +134,7 @@
                 android:paddingLeft="5dp"
                 android:text="@string/delete_messages"
                 android:textSize="20sp"
-                android:textColor="@color/grayFirm"
+                android:textColor="@color/gray_firm"
                 android:textStyle="bold" />
 
             <Space
@@ -180,7 +180,7 @@
             android:layout_width="match_parent"
             android:layout_height="2dp"
             android:layout_marginTop="5dp"
-            android:background="@color/grayFirm"/>
+            android:background="@color/gray_firm"/>
 
 
         <LinearLayout
@@ -203,7 +203,7 @@
                 android:paddingLeft="5dp"
                 android:text="@string/morty"
                 android:textSize="20sp"
-                android:textColor="@color/grayFirm"
+                android:textColor="@color/gray_firm"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -229,7 +229,7 @@
                 android:paddingLeft="5dp"
                 android:text="@string/creator"
                 android:textSize="20sp"
-                android:textColor="@color/grayFirm"
+                android:textColor="@color/gray_firm"
                 android:textStyle="bold" />
 
         </LinearLayout>

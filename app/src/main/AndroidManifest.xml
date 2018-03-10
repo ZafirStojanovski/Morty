@@ -36,6 +36,21 @@
         <service
             android:name=".FlaskDatabase.SaveToFlaskIntentService"
             android:exported="false" />
+        <service
+            android:name=".RoomPersistance.DeleteAllMessagesIntentService"
+            android:exported="false" />
+        <service
+            android:name=".FlaskDatabase.DeleteFromFlaskIntentService"
+            android:exported="false" />
+
+        <activity
+            android:name=".AboutInfo.AboutMorty"
+            android:theme="@style/AboutAppTheme">
+        </activity>
+
+        <activity android:name=".AboutInfo.AboutCreator"
+            android:theme="@style/AboutAppTheme">
+        </activity>
     </application>
 
 </manifest>

@@ -55,8 +55,8 @@ public class UserIdIntentService extends IntentService {
                     UserIdResponse userIdResponse = response.body();
                     sendBroadcast(new Intent(RESPONSE_USER_ID_RECEIVED)
                             .putExtra(RESPONSE_USER_ID, userIdResponse.userId));
-                }catch (NullPointerException e){
-                    Log.e("UserIdResponseNull", e.getMessage());
+                }catch (Exception e){
+                    Log.e("UserIdResponseFail", e.getMessage());
                     sendBroadcast(new Intent(RESPONSE_USER_ID_RECEIVED)
                             .putExtra(RESPONSE_USER_ID, 0L));
                 }
@@ -64,7 +64,7 @@ public class UserIdIntentService extends IntentService {
 
             @Override
             public void onFailure(Call<UserIdResponse> call, Throwable t) {
-                Log.i(CLASS_NAME, t.getMessage());
+                Log.i("UserIdResponseFail", t.getMessage());
             }
         });
     }

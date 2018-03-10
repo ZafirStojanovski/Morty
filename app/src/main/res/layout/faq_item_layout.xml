@@ -11,6 +11,6 @@
         android:textAlignment="viewStart"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/grayFirm"/>
+        android:textColor="@color/gray_firm"/>
 
 </RelativeLayout>

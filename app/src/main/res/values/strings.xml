@@ -12,7 +12,10 @@
     <string name="username">f6946a7a-6215-43b2-a1c6-c6d6fa151027</string>
     <string name="password"> Cj5rBYYVUgld</string>
     <string name="workspace_id">1f5a3c51-d7af-47ed-841a-ef9dbf749f02</string>
+
     <string name="negative_reponse">I didn\'t understand. You can try rephrasing.</string>
+    <string name="diplomatic_response">I\'m sorry, I didn\'t quite get that.</string>
+
     <string name="censor_morty">Censor Morty</string>
     <string name="sync_messages">Sync messages</string>
     <string name="delete_messages">Delete messages</string>
@@ -24,6 +27,30 @@
     <string name="reddit">Reddit</string>
     <string name="connect_to_internet">Please connect to the Internet</string>
     <string name="wait_morty">Please wait for Morty\'s response</string>
+    <string name="morty_who">Who\'s Morty?</string>
+    <string name="morty_who_reply_1">Morty is a Rule-based/Deep learning chatbot hybrid...</string>
+    <string name="morty_who_reply_2">WAIT WAIT WAIT. English please.</string>
+    <string name="morty_who_reply_3">Basically, it\'s a bot that helps highschool students get to know more about FINKI.</string>
+    <string name="morty_how">How does he work?</string>
+    <string name="morty_how_reply_1">Well, 2 engines work in the background: \n\- One that answers questions about FINKI\;\n\- Another that answers anything else.</string>
+    <string name="morty_how_reply_2">So he knows the secrets to the Universe?</string>
+    <string name="winks_at_morty_definitely_not">*winks at Morty* Definitely not.</string>
+    <string name="morty_aware">What should you be aware of?</string>
+    <string name="morty_aware_reply_1">If you are someone that\'s easily offended, it\'s highly advised that you censor Morty.</string>
+    <string name="morty_aware_reply_2">But why?</string>
+    <string name="morty_aware_reply_3">He comes up with some pretty stupid stuff.\nTrust me.</string>
+    <string name="creator_who">Who made the app?</string>
+    <string name="creator_who_reply_1">A FINKI student.</string>
+    <string name="creator_who_reply_2">Really? *sarcasm intensifies*</string>
+    <string name="creator_who_reply_3">Nah. *doubly sarcastically*</string>
+    <string name="creator_reach">How to reach him?</string>
+    <string name="creator_reach_reply_1">Here\'s his e-mail: ZafirStojanovski@outlook.com</string>
+    <string name="creator_reach_reply_2">What about social media?</string>
+    <string name="creator_reach_reply_3">Sure, Instagram will do:\n@starzmustdie</string>
+    <string name="creator_info">What\'s there to know about him?</string>
+    <string name="creator_info_reply_1">He\'s a student making his way into the mobile development field.</string>
+    <string name="creator_info_reply_2">What about any iOS skills?</string>
+    <string name="creator_info_reply_3">None yet, but sure enough getting there.</string>
 
     <string-array name="finkiFAQ">
         <item>Are there requisite subjects that I should take?</item>
@@ -35,7 +62,6 @@
     </string-array>
 
     <string-array name="redditFAQ">
-        <item>What\'s your name?</item>
         <item>What\'s the meaning of life?</item>
         <item>Is there life somewhere else in the Universe?</item>
         <item>Do you have emotions?</item>

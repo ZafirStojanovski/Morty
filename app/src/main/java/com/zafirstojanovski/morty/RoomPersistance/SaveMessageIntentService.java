@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteConstraintException;
+import android.database.SQLException;
 import android.util.Log;
 
 import com.zafirstojanovski.morty.ChatkitEssentials.Message;
@@ -46,8 +46,8 @@ public class SaveMessageIntentService extends IntentService {
         try {
             appDatabase.messageHistoryDao().insertMessage(message);
         }
-        catch (SQLiteConstraintException e){
-            Log.e("LOCAL INSERT EXCEPTION", message.getId() + ": " + e.getMessage());
+        catch (SQLException e){
+            Log.e("SaveMessageException", message.getId() + ": " + e.getMessage());
         }
 
     }

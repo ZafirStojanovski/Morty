@@ -24,4 +24,7 @@ public interface MessageHistoryDao {
 
     @Query("DELETE FROM messageHistory where id LIKE :id")
     int deleteMessage(String id);
+
+    @Query("DELETE FROM messageHistory")
+    void deleteAllMessages();
 }
