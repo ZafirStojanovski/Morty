@@ -45,12 +45,11 @@
 
         <activity
             android:name=".AboutInfo.AboutMorty"
-            android:theme="@style/AboutAppTheme">
-        </activity>
-
-        <activity android:name=".AboutInfo.AboutCreator"
-            android:theme="@style/AboutAppTheme">
-        </activity>
+            android:theme="@style/AboutAppTheme"></activity>
+        <activity
+            android:name=".AboutInfo.AboutCreator"
+            android:theme="@style/AboutAppTheme"></activity>
+        <activity android:name=".AboutInfo.GlideTest"></activity>
     </application>
 
 </manifest>

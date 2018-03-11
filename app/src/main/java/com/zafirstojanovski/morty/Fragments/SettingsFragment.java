@@ -97,7 +97,7 @@ public class SettingsFragment extends Fragment {
 
         censorSwitch.setChecked(
                 sharedPreferences
-                        .getBoolean(CENSOR_SWITCH, false)
+                        .getBoolean(CENSOR_SWITCH, true)
         );
 
         syncSwitch.setChecked(
@@ -146,7 +146,6 @@ public class SettingsFragment extends Fragment {
 
         alertDialog = alertDialogBuilder
                 .setTitle("Are you sure?")
-                .setIcon(R.drawable.ic_warning)
                 .setMessage("This action cannot be undone.")
                 .setPositiveButton("Delete", dialogClickListener)
                 .setNegativeButton("Cancel", dialogClickListener)

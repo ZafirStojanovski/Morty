@@ -17,7 +17,7 @@ import java.util.Date;
  */
 
 @Entity(tableName = "messageHistory")
-public class Message implements IMessage, MessageContentType.Image, Serializable {
+public class Message implements IMessage, Serializable {
 
     @PrimaryKey
     private String id;
@@ -31,16 +31,11 @@ public class Message implements IMessage, MessageContentType.Image, Serializable
     @ColumnInfo(name="created_at")
     private Date createdAt;
 
-    @Ignore
-    private String imageUrl;
-
-
     public Message(String id, String text, Author user, Date createdAt) {
         this.id = id;
         this.text = text;
         this.user = user;
         this.createdAt = createdAt;
-        this.imageUrl = null;
     }
 
     @Override
@@ -80,17 +75,7 @@ public class Message implements IMessage, MessageContentType.Image, Serializable
     }
 
     @Override
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    @Override
     public String toString() {
         return String.format("%s.%s: %s", id, user, text);
     }
-
 }

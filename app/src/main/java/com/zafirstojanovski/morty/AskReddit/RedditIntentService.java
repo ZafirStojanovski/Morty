@@ -71,6 +71,8 @@ public class RedditIntentService extends IntentService {
             @Override
             public void onFailure(Call<RedditResponse> call, Throwable t) {
                 Log.e(CLASS_NAME, t.getMessage());
+                sendBroadcast(new Intent(RESPONSE_RECEIVED)
+                        .putExtra(RESPONSE, getString(R.string.diplomatic_response)));
             }
         });
     }

@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.ibm.watson.developer_cloud.conversation.v1.Conversation;
 import com.ibm.watson.developer_cloud.conversation.v1.model.InputData;
 import com.ibm.watson.developer_cloud.conversation.v1.model.MessageOptions;
@@ -78,9 +77,13 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     private ImageLoader imageLoader;
 
     private String evilMortyImage = new StringBuilder().append(R.drawable.realistic_evil_morty).toString();
-    private String typingIndicatorImage = new StringBuilder().append(R.drawable.loading_2).toString();
 
+    private Handler mortyTypingHandler;
+    private Runnable mortyTypingRunnable;
     private Message mortyTypingMessage;
+    private static final String MORTY_TYPING_ID = "-1";
+    private static final String[] mortyTypingTexts = {"Morty is thinking", "Morty is thinking.", "Morty is thinking..", "Morty is thinking..."};
+    private int mortyTypingCounter;
 
     private MessagesListAdapter.OnLoadMoreListener loadMoreListener;
 
@@ -120,7 +123,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -134,7 +136,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         setupLoadMoreListener();
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -147,12 +148,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
 
         IntentFilter networkChangeFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         activity.registerReceiver(networkChangeReceiver, networkChangeFilter);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        adapter.addToStart(mortyTypingMessage, true);
     }
 
     @Override
@@ -253,20 +248,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     private void setupChatKit(View rootView) {
-        imageLoader = new ImageLoader() {
-            @Override
-            public void loadImage(ImageView imageView, String url) {
-                if (url.equals(typingIndicatorImage)){
-                    Glide.with(context)
-                            .load(R.drawable.loading_3)
-                            .into(imageView);
-                } else {
-                    imageView.setBackgroundResource(Integer.parseInt(url));
-
-                }
-            }
-        };
-
+        setupImageLoader();
         messagesList = rootView.findViewById(R.id.messagesList);
         messageId = getMessageId();
         rick = new Author(RICK_ID, getString(R.string.rick_name), null);
@@ -275,9 +257,54 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         messagesList.setAdapter(adapter);
         inputView = rootView.findViewById(R.id.input);
         inputView.setInputListener(this);
-        mortyTypingMessage = new Message("-1", "", morty, null);
-        mortyTypingMessage.setImageUrl(typingIndicatorImage);
+        setupTypingHandler();
     }
+
+    private void setupImageLoader() {
+        imageLoader = new ImageLoader() {
+            @Override
+            public void loadImage(ImageView imageView, String url) {
+                imageView.setBackgroundResource(Integer.parseInt(url));
+            }
+        };
+    }
+
+    private void setupTypingHandler() {
+
+        mortyTypingHandler = new Handler();
+        mortyTypingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    updateMortyTypingMessage();
+                } finally {
+                    mortyTypingHandler.postDelayed(mortyTypingRunnable, 1000);
+                }
+            }
+        };
+    }
+
+    private void updateMortyTypingMessage() {
+        mortyTypingCounter = mortyTypingCounter % 4;
+        mortyTypingMessage.setText(mortyTypingTexts[mortyTypingCounter]);
+        mortyTypingMessage.setCreatedAt(new Date());
+        adapter.notifyDataSetChanged();
+        mortyTypingCounter++;
+    }
+
+    private void startUpdatingMortyTyping(){
+        mortyTypingMessage = new Message(MORTY_TYPING_ID,"", morty, new Date());
+        mortyTypingCounter = 0;
+        adapter.addToStart(mortyTypingMessage, true);
+        mortyTypingRunnable.run();
+    }
+
+    private void stopUpdatingMortyTyping(){
+        mortyTypingHandler.removeCallbacks(mortyTypingRunnable);
+        adapter.deleteById(MORTY_TYPING_ID);
+        adapter.notifyDataSetChanged();
+    }
+
 
     private void setupLoadMoreListener() {
         loadMoreListener = new MessagesListAdapter.OnLoadMoreListener() {
@@ -321,7 +348,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public boolean mortyResponded() {
         return messageId % 2 == 0;
     }
-
 
     private void getWatsonResponse(final String inputMessage) {
         new Thread(new Runnable() {
@@ -376,7 +402,7 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     /**
      * Resolve whether Watson's or Reddit's response is going to be taken.
      */
-    private void resolveResponse(String watsonResponse, double confidence, String originalInputMessage){
+    private void resolveResponse(String watsonResponse, double confidence, final String originalInputMessage){
         if (validateResponse(watsonResponse, confidence)){
             writeResponse(watsonResponse);
         }
@@ -384,12 +410,18 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
             writeResponse(getString(R.string.diplomatic_response));
         }
         else {
-            getActivity().startService(
-                    new Intent(
-                            getActivity(),
-                            RedditIntentService.class
-                    ).putExtra(STATEMENT, originalInputMessage)
-            );
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startUpdatingMortyTyping();
+                    getActivity().startService(
+                            new Intent(
+                                    getActivity(),
+                                    RedditIntentService.class
+                            ).putExtra(STATEMENT, originalInputMessage)
+                    );
+                }
+            }, 375);
         }
     }
 
@@ -402,18 +434,21 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                 && !watsonResponse.trim().isEmpty();
     }
 
-
     /**
      * A response from Reddit has been received
      */
     private class UpdateChatReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
+            stopUpdatingMortyTyping();
             String response = intent.getStringExtra(RESPONSE);
             writeResponse(response);
         }
     }
 
+    /**
+     * A new user id has been received
+     */
     private class UpdateUserIdReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -423,9 +458,8 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     }
 
     /**
-        Internet connection state has altered
+        Internet connection state has changed
      */
-
     public class NetworkChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(final Context context, final Intent intent) {
@@ -539,5 +573,4 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         lastMessageId = "0";
         storeMessageId();
     }
-
 }
