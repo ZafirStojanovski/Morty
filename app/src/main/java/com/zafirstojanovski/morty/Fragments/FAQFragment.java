@@ -105,4 +105,5 @@ public class FAQFragment extends Fragment {
         redditRecyclerView.setAdapter(redditRecyclerAdapter);
         redditRecyclerView.setLayoutManager(redditLayoutManager);
     }
+
 }

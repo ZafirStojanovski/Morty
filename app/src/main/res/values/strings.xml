@@ -53,12 +53,14 @@
     <string name="creator_info_reply_3">None yet, but sure enough getting there.</string>
 
     <string-array name="finkiFAQ">
-        <item>Are there requisite subjects that I should take?</item>
+        <item>What can you do?</item>
+        <item>Tell me about minimal laptop configuration.</item>
         <item>Are there any scholarships?</item>
-        <item>Tell me about Quotas.</item>
+        <item>Does FINKI provide internships?</item>
+        <item>Tell me about future job positions.</item>
         <item>How do I know if I\'m good enough to enroll?</item>
         <item>Which high school subjects should I choose for my finals?</item>
-        <item>I want to know more about CSE.</item>
+        <item>Are there student exchange programs?</item>
     </string-array>
 
     <string-array name="redditFAQ">
