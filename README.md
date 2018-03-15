@@ -5,6 +5,7 @@ Who are you?
 ---  
 
 I'm a Rule-based/Deep learning chatbot hybrid...  
+
 \- WAIT WAIT WAIT. English please.  
 
 Basically, I help high school students to get to know FINKI better, but I also have general knowledge of diverse areas.  
@@ -24,6 +25,7 @@ What should I be aware of?
 ---  
 
 If you are someone that's easily offended, it's highly advised that you censor me.  
+
 \- But why?  
 
 I come up with some pretty stupid stuff. Trust me.
