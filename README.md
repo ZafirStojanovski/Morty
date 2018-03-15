@@ -18,7 +18,7 @@ Well, 2 engines work in my brain:
 
 \- So, you know the secrets to the Universe?  
 
-Definately not. * code red, they're onto us *  
+Definately not. (*code red, they're onto us*)  
 
 What should I be aware of?
 ---  
