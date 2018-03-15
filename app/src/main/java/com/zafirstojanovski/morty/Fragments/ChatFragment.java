@@ -182,7 +182,6 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         this.networkChangeReceiver = new NetworkChangeReceiver();
     }
 
-
     private void setupLoaders() {
         localDataLoaderListener = new LoaderManager.LoaderCallbacks<List<Message>>() {
             @Override
@@ -269,8 +268,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         };
     }
 
+    /**
+     *  Setting up 'Morty is thinking...' message
+     */
     private void setupTypingHandler() {
-
         mortyTypingHandler = new Handler();
         mortyTypingRunnable = new Runnable() {
             @Override
@@ -305,7 +306,9 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         adapter.notifyDataSetChanged();
     }
 
-
+    /**
+     *  Triggered when user scrolls to the top of the MessageList
+     */
     private void setupLoadMoreListener() {
         loadMoreListener = new MessagesListAdapter.OnLoadMoreListener() {
             @Override
@@ -329,6 +332,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                 .apply();
     }
 
+    /**
+     *  Called when the 'Send' button is pressed.
+     */
+
     @Override
     public boolean onSubmit(CharSequence input) {
         if (checkInternetConnection()){
@@ -348,6 +355,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
     public boolean mortyResponded() {
         return messageId % 2 == 0;
     }
+
+    /**
+     *  Sends the user input message to Watson to retrieve an answer
+     */
 
     private void getWatsonResponse(final String inputMessage) {
         new Thread(new Runnable() {
@@ -478,6 +489,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
                 .apply();
     }
 
+    /**
+        Adds the message to MessageList, saves it locally, saves it on server database
+        and asks Watson (The FINKI bot) if he's got an answer for it
+     */
     public void writeStatement(String statement){
         Message messageFromSender = new Message((++messageId).toString(), statement, rick, new Date());
         adapter.addToStart(messageFromSender, true);
@@ -526,6 +541,10 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    /**
+     * Returns checked state for a given switch from the settings tab
+     */
+
     private Boolean isSwitchChecked(String switchName){
         return sharedPreferences
                     .getBoolean(switchName, false);
@@ -535,6 +554,9 @@ public class ChatFragment extends Fragment implements MessageInput.InputListener
         return userId != 0L;
     }
 
+    /**
+        Removes all message history (locally, on server and in chat)
+     */
     public void deleteMessages(){
         deleteMessagesFromChat();
         deleteMessagesFromAppDatabase();
