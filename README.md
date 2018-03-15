@@ -28,4 +28,6 @@ If you are someone that's easily offended, it's highly advised that you censor m
 
 \- But why?  
 
-I come up with some pretty stupid stuff. Trust me.
+I come up with some pretty stupid stuff. Trust me.  
+
+![Morty's responses](https://i.imgur.com/LGbPt0L.png)
