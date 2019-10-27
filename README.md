@@ -1,4 +1,4 @@
-MORTY
+Morty
 ===
 
 Who are you?
